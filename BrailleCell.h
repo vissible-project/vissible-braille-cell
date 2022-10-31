@@ -1,7 +1,7 @@
 #ifndef BrailleCell_h
 #define BrailleCell_h
 
-const int LONG_DURATION = 500;
+const int LONG_DURATION = 150;
 
 class BrailleChar {
   private:

@@ -48,4 +48,4 @@ BrailleChar brailleChars[] = {
   BrailleChar("z", 0B00110101)
 };
 
-BrailleChar blankBrailleChar("blank", 0B00000000, 200);
+BrailleChar blankBrailleChar("blank", 0B00000000, 1000);

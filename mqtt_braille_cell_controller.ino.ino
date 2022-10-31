@@ -13,6 +13,8 @@ const int clearPin = D4;   // Arduino 8 to Pin 10; SRCLR (Clear/Reset)
 WiFiClient espClient;
 PubSubClient client(espClient);
 char mqtt_server_location[50];
+#define MSG_BUFFER_SIZE  (50)
+char msg[MSG_BUFFER_SIZE];
 
 void configureWiFi() {
   WiFi.mode(WIFI_STA); // explicitly set mode, esp defaults to STA+AP
@@ -70,15 +72,10 @@ void displayBrailleCell(BrailleChar brailleChar) {
   
   sendToBrailleCell(blankBrailleChar.getValue());
   delay(blankBrailleChar.getDuration());
-}
-
-void remove_spaces(char* s) {
-    char* d = s;
-    do {
-        while (*d == ' ') {
-            ++d;
-        }
-    } while (*s++ = *d++);
+  snprintf (msg, MSG_BUFFER_SIZE, "%s", brailleChar.getName());
+//  Serial.print("Publish message: ");
+//  Serial.println(msg);
+  client.publish("vissible/char/resp", msg);
 }
 
 // https://stackoverflow.com/a/34055805/7450617
@@ -97,19 +94,19 @@ void receivedMqttMessage(char* topic, byte* payload, unsigned int length) {
   }
   strcat(received_message, "\0");
 
-  Serial.print("received::");
-  Serial.print(topic);
-  Serial.print("::");
-  Serial.println(received_message);
+//  Serial.print("received::");
+//  Serial.print(topic);
+//  Serial.print("::");
+//  Serial.println(received_message);
   
   for(int i = 0; i < 26; i++) {
     const char* this_name = brailleChars[i].getName();
 
     if(strcmp(this_name, received_message) == 0) {
-      Serial.print("Found::");
-      Serial.print(received_message);
-      Serial.print("::");
-      Serial.println(this_name);
+//      Serial.print("Found::");
+//      Serial.print(received_message);
+//      Serial.print("::");
+//      Serial.println(this_name);
 
       displayBrailleCell(brailleChars[i]);
     }
@@ -140,7 +137,7 @@ void reconnectToMqtt() {
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(115100);
   
   configureWiFi();
   Serial.print("MQTT STARTING AT ");
@@ -155,6 +152,7 @@ void setup()
   
   digitalWrite(clearPin, LOW);    // Clear the shift register
   digitalWrite(clearPin, HIGH);   // Hold the state of the shift register
+  sendToBrailleCell(blankBrailleChar.getValue());
 }
 
 void loop()
